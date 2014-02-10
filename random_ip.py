@@ -10,6 +10,8 @@ def check_private_ip(ip):
     # 192.168.0.0 - 192.168.255.255
     if ip[0] == '10':  # Private
         return True
+    elif ip[0] == '127': # Localhost
+        return True
     elif ip[0] == '172' and (int(ip[1]) >= 16 and int(ip[1]) <=31):  # Private
         return True
     elif ip[0] == '192' and ip[1] == '168':  # Private
