@@ -36,6 +36,9 @@ def make_ip():
 
 
 def get_webserver(ip):
+    # Maybe?
+    # nmap -sS localhost -Pn -p 21,22,23,25,80,2222,8080,8888
+
     print '[*] Looking for HTTP server: '+ip
     try:
         response = urllib2.urlopen('http://'+ip)
