@@ -1,5 +1,5 @@
 from random import randint
-import urllib2
+import urllib2, redis
 
 import socket
 socket.setdefaulttimeout(0.5) # 1 sekund
@@ -47,12 +47,17 @@ def get_webserver(ip):
     
 
 def Main():
+    R = redis.Redis('localhost')
+
     while 1:
         ip = make_ip()
 #        ip = '24.67.93.211'
-        if get_webserver(ip):
-            exit()
 
+	if R.sadd('random:ip', ip):
+           if get_webserver(ip):
+               exit()
+	else:
+	   print('[-] Alredy checked: %s' % ip)
 
 
 if __name__ == '__main__':
