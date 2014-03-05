@@ -1,8 +1,10 @@
 from random import randint
-import urllib2, redis
+import urllib2, redis, nmap
 
 import socket
 socket.setdefaulttimeout(0.5) # 1 sekund
+
+PORTS = [21,22,23,25,80,2222,8080,8888]
 
 def check_private_ip(ip):
     # 10.0.0.0 - 10.255.255.255
@@ -47,7 +49,18 @@ def get_webserver(ip):
         return True
     except urllib2.URLError, e:
         return False
-    
+
+def Scan(ip):
+    nm = nmap.PortScanner()
+    retur = []
+    port = ','.join(map(str,PORTS))  # [1,2,3] -> '1,2,3'
+    nm.scan(ip, port, '-sS -Pn')
+
+    for i in PORTS:
+        if('open' in nm[ip]['tcp'][i]['state']):
+            retur.append(i)
+    return retur
+
 
 def Main():
     R = redis.Redis('localhost')
@@ -56,8 +69,12 @@ def Main():
         ip = make_ip()
 #        ip = '24.67.93.211'
 
+
 	if R.sadd('random:ip', ip):
-           if get_webserver(ip):
+            print('[*] Scanning: %s' % ip)
+            ports = Scan(ip)
+            if ports:
+               print ip, ports 
                exit()
 	else:
 	   print('[-] Alredy checked: %s' % ip)
