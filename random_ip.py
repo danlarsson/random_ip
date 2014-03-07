@@ -1,5 +1,5 @@
 from random import randint
-import redis, nmap
+import redis, nmap, time
 
 import socket
 socket.setdefaulttimeout(0.5) # 1 sekund
@@ -57,18 +57,26 @@ def Scan(ip):
 
 def Main():
     R = redis.Redis('localhost')
+    nr_entrys =  R.scard('random:ip')
+    tid = time.time()
 
+    print('Number of IPs in database: %i' % nr_entrys)
+    print('')
+    
     while 1:
         ip = make_ip()
 #        ip = '24.67.93.211'
 
-
 	if R.sadd('random:ip', ip):
             print('[*] Scanning: %s' % ip)
             ports = Scan(ip)
+
             if ports:
-               print ip, ports 
-               exit()
+                tid = time.time() - tid
+                nr_entrys = R.scard('random:ip') - nr_entrys
+                print('[+] Searched %i IPs in %f seconds)' % (nr_entrys, tid))
+                print('[+] ') + ip, ports 
+                exit()
 	else:
 	   print('[-] Alredy checked: %s' % ip)
 
