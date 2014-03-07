@@ -1,10 +1,10 @@
 from random import randint
-import urllib2, redis, nmap
+import redis, nmap
 
 import socket
 socket.setdefaulttimeout(0.5) # 1 sekund
 
-PORTS = [21,22,23,25,80,2222,8080,8888]
+PORTS = [21,22,23,80,443,2222,8080,8888,22222]
 
 def check_private_ip(ip):
     # 10.0.0.0 - 10.255.255.255
@@ -37,19 +37,6 @@ def make_ip():
             return(".".join(ip))
 
 
-def get_webserver(ip):
-    # Maybe?
-    # nmap -sS localhost -Pn -p 21,22,23,25,80,2222,8080,8888
-
-    print '[*] Looking for HTTP server: '+ip
-    try:
-        response = urllib2.urlopen('http://'+ip)
-        print "This gets the code: ", response.code
-        print "The Server is: ", response.info()['server']
-        return True
-    except urllib2.URLError, e:
-        return False
-
 def Scan(ip):
     nm = nmap.PortScanner()
     retur = []
@@ -59,7 +46,13 @@ def Scan(ip):
     for i in PORTS:
         if('open' in nm[ip]['tcp'][i]['state']):
             retur.append(i)
+    
+    if retur:
+        retur.append(nm[ip].hostname())
+
     return retur
+
+
 
 
 def Main():
@@ -84,8 +77,10 @@ if __name__ == '__main__':
     Main()
 
 
-#  
 #
+#   (.|.)  <- Forslag pa logo!
+#    ).(      Battre kommer tydligen inte?
+#   ( v )
+#    \|/
 #
-#
-
+# Last line of code
