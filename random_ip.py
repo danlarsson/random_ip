@@ -4,7 +4,7 @@ import redis, nmap, time
 import socket
 socket.setdefaulttimeout(0.5) # 1 sekund
 
-PORTS = [21,22,23,80,443,2222,8080,8888,22222]
+PORTS = [21,22,23,80,443,2222,6379,8080,8888,22222]
 
 def check_private_ip(ip):
     # 10.0.0.0 - 10.255.255.255
@@ -72,6 +72,7 @@ def Main():
             ports = Scan(ip)
 
             if ports:
+                R.sadd('random:ip:found', ip)  # List of IPs with open ports.
                 tid = time.time() - tid
                 nr_entrys = R.scard('random:ip') - nr_entrys
                 print('[+] Searched %i IPs in %f seconds)' % (nr_entrys, tid))
