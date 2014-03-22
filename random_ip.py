@@ -1,8 +1,8 @@
 from random import randint
 import redis, nmap, time
 
-import socket
-socket.setdefaulttimeout(0.5) # 1 sekund
+#import socket
+#socket.setdefaulttimeout(0.5) # 1 sekund
 
 PORTS = [21,22,23,80,443,2222,6379,8080,8888,22222]
 
@@ -43,12 +43,18 @@ def Scan(ip):
     port = ','.join(map(str,PORTS))  # [1,2,3] -> '1,2,3'
     nm.scan(ip, port, '-sS -Pn')
 
+    try: # Check if nmap worked, seems likte the scan takes to long sometimes. 
+        nm[ip]
+    except:
+        print('[-] Error: %s' % ip)
+        return
+
     for i in PORTS:
         if('open' in nm[ip]['tcp'][i]['state']):
             retur.append(i)
     
     if retur:
-        retur.append(nm[ip].hostname())
+        retur.insert(0, nm[ip].hostname())
 
     return retur
 
@@ -75,11 +81,16 @@ def Main():
                 R.sadd('random:ip:found', ip)  # List of IPs with open ports.
                 tid = time.time() - tid
                 nr_entrys = R.scard('random:ip') - nr_entrys
+                xx = 'random:' + ip
+                R.hset(xx, 'hostname', ports[0])
+                R.hset(xx, 'ports', ports[1:])
+                print('[ ]')
                 print('[+] Searched %i IPs in %f seconds)' % (nr_entrys, tid))
                 print('[+] ') + ip, ports 
-                exit()
+                print('[ ]')
+#                exit()
 	else:
-	   print('[-] Alredy checked: %s' % ip)
+	   print('[-] Alredy scanned: %s' % ip)
 
 
 if __name__ == '__main__':
