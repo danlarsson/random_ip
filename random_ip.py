@@ -67,11 +67,11 @@ def Main():
     tid = time.time()
 
     print('Number of IPs in database: %i' % nr_entrys)
+    print('Scanning ports: %s' % PORTS)
     print('')
     
     while 1:
         ip = make_ip()
-#        ip = '24.67.93.211'
 
 	if R.sadd('random:ip', ip):
             print('[*] Scanning: %s' % ip)
@@ -80,15 +80,16 @@ def Main():
             if ports:
                 R.sadd('random:ip:found', ip)  # List of IPs with open ports.
                 tid = time.time() - tid
-                nr_entrys = R.scard('random:ip') - nr_entrys
+                tmp_entrys = R.scard('random:ip')
+                entrys = tmp_entrys - nr_entrys
+                nr_entrys = tmp_entrys
                 xx = 'random:' + ip
                 R.hset(xx, 'hostname', ports[0])
                 R.hset(xx, 'ports', ports[1:])
                 print('[ ]')
-                print('[+] Searched %i IPs in %f seconds)' % (nr_entrys, tid))
+                print('[+] Searched %i IPs in %f seconds)' % (entrys, tid))
                 print('[+] ') + ip, ports 
                 print('[ ]')
-#                exit()
 	else:
 	   print('[-] Alredy scanned: %s' % ip)
 
